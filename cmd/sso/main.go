@@ -1,9 +1,12 @@
 package main
 
 import (
+	"github.com/wnikx/sso/internal/app"
 	"github.com/wnikx/sso/internal/config"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -13,14 +16,25 @@ const (
 )
 
 func main() {
-	// TODO: объект конфига
 	cfg := config.MustLoad()
 
-	// TODO: логирование
 	log := setupLogger(cfg.Env)
 	log.Info("starting config")
 
-	// TODO: инициализация приложения(app)
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	go application.GrpcServer.MustRun()
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+
+	sig := <-stop
+
+	log.Info("received shutdown signal", sig)
+
+	application.GrpcServer.Stop()
+
+	log.Info("application stop ")
 }
 
 func setupLogger(env string) *slog.Logger {
