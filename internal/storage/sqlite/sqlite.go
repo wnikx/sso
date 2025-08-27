@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wnikx/sso/internal/domain/models"
@@ -27,7 +28,7 @@ func New(storagePath string) (*Storage, error) {
 
 func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (int64, error) {
 	const op = "storage.sqlite.SaveUser"
-	stmt, err := s.db.Prepare("INSERT INTO users (email, password_hash) VALUES (?, ?)")
+	stmt, err := s.db.Prepare("INSERT INTO users (email, pass_hash) VALUES (?, ?)")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -75,7 +76,7 @@ func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
 
 func (s *Storage) IsAdmin(ctx context.Context, userId int64) (bool, error) {
 	const op = "storage.sqlite.IsAdmin"
-	stmt, err := s.db.Prepare("SELECT admin FROM users WHERE id = ?")
+	stmt, err := s.db.Prepare("SELECT is_admin FROM users WHERE id = ?")
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", op, err)
 	}
@@ -84,7 +85,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userId int64) (bool, error) {
 	err = row.Scan(&isAdmin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("%s: %w", op, storage.ErrAppNotFound)
+			return false, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
 		}
 		return false, fmt.Errorf("%s: %w", op, err)
 	}

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/wnikx/sso/internal/app"
-	"github.com/wnikx/sso/internal/config"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/wnikx/sso/internal/app"
+	"github.com/wnikx/sso/internal/config"
 )
 
 const (

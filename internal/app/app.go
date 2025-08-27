@@ -1,11 +1,12 @@
 package app
 
 import (
+	"log/slog"
+	"time"
+
 	grpcapp "github.com/wnikx/sso/internal/app/grpc"
 	"github.com/wnikx/sso/internal/services/auth"
 	"github.com/wnikx/sso/internal/storage/sqlite"
-	"log/slog"
-	"time"
 )
 
 type App struct {

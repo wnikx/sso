@@ -3,9 +3,9 @@ package authgrpc
 import (
 	"context"
 	"errors"
+
 	ssov1 "github.com/wnikx/contracts/gen/go/sso"
 	"github.com/wnikx/sso/internal/services/auth"
-	"github.com/wnikx/sso/internal/storage"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -61,14 +61,14 @@ func validateLogin(req *ssov1.LoginRequest) error {
 	return nil
 }
 
-func (s *serverAPI) RegisterNewUser(ctx context.Context, req *ssov1.RegisterRequest) (*ssov1.RegisterResponse, error) {
+func (s *serverAPI) Register(ctx context.Context, req *ssov1.RegisterRequest) (*ssov1.RegisterResponse, error) {
 	if err := validateRegister(req); err != nil {
 		return nil, err
 	}
 
 	userId, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, auth.ErrInvalidCredentials) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 		return nil, status.Error(codes.InvalidArgument, err.Error())
